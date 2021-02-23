@@ -1,27 +1,35 @@
-﻿using System;
+using System;
+
 
 
 public interface ICoin
 {
-	string Description { get; set; }
-	decimal value1{get;set;}
+	public string Description { get; set; }
+	public decimal value1{get;set;}
 	
 }
 
 public class nickelsCoin: ICoin
 {
-    string ICoin.Description{get;set;}
-	decimal ICoin.value1{get;set;} = 1/20;
+    public string Description{get;set;}
+	public  decimal value1{get;set;} 
+
+	public nickelsCoin()
+	{
+		Description="nickelsCoin";
+		value1= 1/20m;
+	}
 }
 public class dimesCoint: ICoin
 {
-    string ICoin.Description{get;set;}
-	decimal ICoin.value1{get;set;} = 1/10;
+    public string Description{get;set;}
+	public  decimal value1{get;set;} = 1/10;
+
 }
 public class quartersCoin: ICoin
 {
-    string ICoin.Description{get;set;}
-	decimal ICoin.value1{get;set;} = 1/4;
+    public  string Description{get;set;}
+	public  decimal value1{get;set;} = 1/4;
 }
 
 public interface IVendorOperation
@@ -30,6 +38,8 @@ public interface IVendorOperation
 	public int coincounter{get;set;}
 	public int AcceptCoin(ICoin c);
 	public decimal insert(ICoin c);
+
+	public decimal ReturnLeftAmount(decimal bal,ICoin c);
 	
 }
 
@@ -41,8 +51,7 @@ public class VendorOperation:IVendorOperation
 	{
 		sumvalue=0;
 		coincounter=0;
-	}
-    
+	}    
    
 	public int AcceptCoin(ICoin c)
 	{
@@ -56,6 +65,17 @@ public class VendorOperation:IVendorOperation
 		coincounter+=1;
 		return sumvalue +=c.value1;
 	}
+
+	public decimal ReturnLeftAmount(decimal bal,ICoin c)
+	{
+		decimal totalserved=bal/c.value1; // ( 2/0.05)
+		sumvalue =sumvalue - Math.Round(totalserved);
+		return totalserved;
+		
+	}
+
+
+
 }
 
 public interface IVendorProduct
@@ -139,9 +159,9 @@ public class VendorSelectProduct:IVendorSelectProduct
 public class Program
 {
 	public static void Main()		
-	{
-		
+	{		
 		IVendorOperation vendormachine= new VendorOperation();
+		ICoin desiredreturncoint=null;
 		if(vendormachine.coincounter==0)
 			Console.WriteLine("INSERT COINT");
 		
@@ -153,11 +173,32 @@ public class Program
 		Console.WriteLine("Total amount as of now" + balance);
 		
 		IVendorSelectProduct sel= new VendorSelectProduct( vendormachine);
-		IVendorProduct output=sel.selectCandy();
-		if(output ==null)
-		{	
-			Console.WriteLine("INSERT COIN");
+		IVendorProduct output=null;
+		
+		while(output ==null)
+		{
+			output=sel.selectchips();
+			if(output ==null)
+			{	
+				Console.WriteLine("INSERT MORE COIN Or change selection");
+			}
 		}
+
+		Console.WriteLine("your total balance is : " +balance);
+		Console.WriteLine("Please input the coint type you want in return with available option");
+		Console.WriteLine("1 nickelsCoin"+ " 2 quartersCoin");
+		string input = Console.ReadLine();
+		if(input =="1")
+		{
+			desiredreturncoint= new nickelsCoin();
+		}
+		else if(input =="2")
+		{
+			desiredreturncoint= new quartersCoin();
+		}
+		decimal totalCoinCount=vendormachine.ReturnLeftAmount(balance,desiredreturncoint);
+		Console.WriteLine("BAlance left cannot be matched in coin" +vendormachine.sumvalue);
+		
 		
 	}
 	
